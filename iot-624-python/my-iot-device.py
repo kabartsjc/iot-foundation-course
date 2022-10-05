@@ -8,7 +8,7 @@ from azure.iot.device.aio import IoTHubDeviceClient
 #variables
 degradation = 0
 deviceId= 'my-iiot-device'
-messages_to_send = 10
+messages_to_send = 100
 
 async def main():
     # Fetch the connection string from an environment variable
@@ -28,11 +28,18 @@ async def main():
         msg.content_encoding = "utf-8"
         msg.content_type = "application/json"
 
+        msg.custom_properties["deviceId"] = 'my-iot-device'
+
         temperature = 20 + (random.randint(0, 100) * 4)
         msg.custom_properties["temperature"] = temperature
 
         flow = 60 + (random.randint(0, 100) * temperature) - degradation
         msg.custom_properties["flow"] = flow
+
+        value = False
+        if temperature >21:
+            value = True
+        msg.custom_properties["temperatureAlert"] = value
 
         await device_client.send_message(msg)
         print("done sending message #" + str(i))
